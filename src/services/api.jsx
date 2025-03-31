@@ -1,23 +1,84 @@
 import axios from 'axios';
 
-const API_BASE_URL = 'https://rudo-backend.onrender.com/'; // Backend URL
+const API_BASE_URL = 'https://rudo-backend.onrender.com/api'; // Base API URL
 
-// Helper function to include JWT token in headers
 const getHeaders = (token) => ({
-  headers: { Authorization: `Bearer ${token}` },
+  headers: {
+    Authorization: `Bearer ${token}`,
+    "Content-Type": "application/json",
+  },
 });
 
-// Auth APIs
-export const registerUser = (userData) => axios.post(`${API_BASE_URL}/api/auth/register`, userData);
-export const loginUser = (userData) => axios.post(`${API_BASE_URL}/api/auth/login`, userData);
+// Authentication APIs
+export const registerUser = async (userData) => {
+  try {
+    const response = await axios.post(`${API_BASE_URL}/auth/register`, userData);
+    return response.data;
+  } catch (error) {
+    console.error("Registration Error:", error.response?.data || error.message);
+    throw error;
+  }
+};
+
+export const loginUser = async (userData) => {
+  try {
+    const response = await axios.post(`${API_BASE_URL}/auth/login`, userData);
+    return response.data;
+  } catch (error) {
+    console.error("Login Error:", error.response?.data || error.message);
+    throw error;
+  }
+};
 
 // Trading APIs
-export const buyStock = (token, orderData) => axios.post(`${API_BASE_URL}/api/trade/buy`, orderData, getHeaders(token));
-export const sellStock = (token, orderData) => axios.post(`${API_BASE_URL}/api/trade/sell`, orderData, getHeaders(token));
+export const buyStock = async (token, orderData) => {
+  try {
+    const response = await axios.post(`${API_BASE_URL}/trade/buy`, orderData, getHeaders(token));
+    return response.data;
+  } catch (error) {
+    console.error("Buy Stock Error:", error.response?.data || error.message);
+    throw error;
+  }
+};
 
-// Portfolio APIs
-export const getPortfolio = (token, userId) => axios.get(`${API_BASE_URL}/api/trade/portfolio/${userId}`, getHeaders(token));
-export const getLeaderboard = (token) => axios.get(`${API_BASE_URL}/api/trade/leaderboard`, getHeaders(token));
+export const sellStock = async (token, orderData) => {
+  try {
+    const response = await axios.post(`${API_BASE_URL}/trade/sell`, orderData, getHeaders(token));
+    return response.data;
+  } catch (error) {
+    console.error("Sell Stock Error:", error.response?.data || error.message);
+    throw error;
+  }
+};
 
-// Stock APIs
-export const getStocks = () => axios.get(`${API_BASE_URL}/api/stocks`); // Assuming you have a GET endpoint for stocks
+// Portfolio & Leaderboard APIs
+export const getPortfolio = async (token, userId) => {
+  try {
+    const response = await axios.get(`${API_BASE_URL}/trade/portfolio/${userId}`, getHeaders(token));
+    return response.data;
+  } catch (error) {
+    console.error("Get Portfolio Error:", error.response?.data || error.message);
+    throw error;
+  }
+};
+
+export const getLeaderboard = async (token) => {
+  try {
+    const response = await axios.get(`${API_BASE_URL}/trade/leaderboard`, getHeaders(token));
+    return response.data;
+  } catch (error) {
+    console.error("Get Leaderboard Error:", error.response?.data || error.message);
+    throw error;
+  }
+};
+
+// Stocks API
+export const getStocks = async () => {
+  try {
+    const response = await axios.get(`${API_BASE_URL}/stocks`);
+    return response.data;
+  } catch (error) {
+    console.error("Get Stocks Error:", error.response?.data || error.message);
+    throw error;
+  }
+};

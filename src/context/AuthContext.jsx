@@ -1,12 +1,12 @@
-import React, { createContext, useState, useEffect } from 'react';
+import React, { createContext, useState, useEffect, useContext } from 'react';
 import { registerUser, loginUser } from '../services/api';
 
-export const AuthContext = createContext();
+const AuthContext = createContext();
 
-export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(null); // Store user info (e.g., email or username)
+const AuthProvider = ({ children }) => {
+  const [user, setUser] = useState(localStorage.getItem('user') || null);
   const [token, setToken] = useState(localStorage.getItem('token') || null);
-  const [userId, setUserId] = useState(localStorage.getItem('userId') || null); // Store userId
+  const [userId, setUserId] = useState(localStorage.getItem('userId') || null);
 
   useEffect(() => {
     if (token) localStorage.setItem('token', token);
@@ -14,7 +14,10 @@ export const AuthProvider = ({ children }) => {
 
     if (userId) localStorage.setItem('userId', userId);
     else localStorage.removeItem('userId');
-  }, [token, userId]);
+
+    if (user) localStorage.setItem('user', user);
+    else localStorage.removeItem('user');
+  }, [token, userId, user]);
 
   const register = async (userData) => {
     try {
@@ -28,10 +31,10 @@ export const AuthProvider = ({ children }) => {
   const login = async (userData) => {
     try {
       const response = await loginUser(userData);
-      const { token, userId } = response.data; // Ensure userId is returned from the backend
+      const { token, userId } = response.data;
       setToken(token);
-      setUserId(userId); // Store userId
-      setUser(userData.email); // Optionally store user info
+      setUserId(userId);
+      setUser(userData.email);
     } catch (err) {
       throw new Error(err.response?.data?.message || 'Login failed');
     }
@@ -41,8 +44,7 @@ export const AuthProvider = ({ children }) => {
     setToken(null);
     setUserId(null);
     setUser(null);
-    localStorage.removeItem('token');
-    localStorage.removeItem('userId');
+    localStorage.clear();
   };
 
   return (
@@ -52,4 +54,6 @@ export const AuthProvider = ({ children }) => {
   );
 };
 
-export const useAuth = () => React.useContext(AuthContext);
+// ✅ Export correctly
+export { AuthProvider, AuthContext };
+export const useAuth = () => useContext(AuthContext);

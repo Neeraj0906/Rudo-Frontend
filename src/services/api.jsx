@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_BASE_URL = 'http://localhost:5000'; // Backend URL
+const API_BASE_URL = 'https://rudo-backend.onrender.com/'; // Backend URL
 
 // Helper function to include JWT token in headers
 const getHeaders = (token) => ({

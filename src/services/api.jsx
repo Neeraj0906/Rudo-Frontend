@@ -1,6 +1,7 @@
 import axios from 'axios';
 
-const API_BASE_URL = 'https://rudo-backend.onrender.com/api'; // Base API URL
+// Use environment variable for API base URL with fallback to localhost
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api';
 
 const getHeaders = (token) => ({
   headers: {
@@ -22,6 +23,7 @@ export const registerUser = async (userData) => {
 
 export const loginUser = async (userData) => {
   try {
+    console.log('Sending login request with data:', userData); // Log the data being sent
     const response = await axios.post(`${API_BASE_URL}/auth/login`, userData);
     return response.data;
   } catch (error) {

@@ -1,5 +1,5 @@
+// AuthContext.jsx
 import React, { createContext, useState, useEffect, useContext } from 'react';
-import { registerUser, loginUser } from '../services/api';
 
 const AuthContext = createContext();
 
@@ -54,6 +54,6 @@ const AuthProvider = ({ children }) => {
   );
 };
 
-// ✅ Export correctly
+// Export AuthContext and AuthProvider consistently
 export { AuthProvider, AuthContext };
 export const useAuth = () => useContext(AuthContext);

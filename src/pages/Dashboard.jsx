@@ -8,53 +8,49 @@ const Dashboard = () => {
   const [portfolio, setPortfolio] = useState([]); // Initialize as an empty array
   const [walletBalance, setWalletBalance] = useState(100000); // Default balance
   const [leaderboard, setLeaderboard] = useState([]);
+  const [loading, setLoading] = useState(true); // Add loading state
 
   useEffect(() => {
-    const fetchPortfolio = async () => {
+    const fetchData = async () => {
       try {
         if (!token || !userId) {
           console.error('Token or userId is missing');
           return;
         }
 
-        const response = await getPortfolio(token, userId);
-        console.log('Portfolio Response:', response.data);
+        // Fetch portfolio
+        const portfolioResponse = await getPortfolio(token, userId);
+        console.log('Portfolio Response:', portfolioResponse.data);
 
-        // Ensure portfolio is always an array
-        const portfolioData = Array.isArray(response.data.portfolio) ? response.data.portfolio : [];
+        const portfolioData = Array.isArray(portfolioResponse.data.portfolio)
+          ? portfolioResponse.data.portfolio
+          : [];
         setPortfolio(portfolioData);
 
-        // Safely handle wallet balance
-        const fetchedWalletBalance = response.data.walletBalance ?? 100000; // Default to 100000 if missing
+        const fetchedWalletBalance = portfolioResponse.data.walletBalance ?? 100000; // Default to 100000 if missing
         setWalletBalance(fetchedWalletBalance);
-      } catch (err) {
-        console.error('Error fetching portfolio:', err.response?.data?.message || err.message);
-      }
-    };
 
-    const fetchLeaderboard = async () => {
-      try {
-        if (!token) {
-          console.error('Token is missing');
-          return;
-        }
+        // Fetch leaderboard
+        const leaderboardResponse = await getLeaderboard(token);
+        console.log('Leaderboard Response:', leaderboardResponse.data);
 
-        const response = await getLeaderboard(token);
-        console.log('Leaderboard Response:', response.data);
-
-        // Ensure leaderboard is always an array
-        const leaderboardData = Array.isArray(response.data.leaderboard) ? response.data.leaderboard : [];
+        const leaderboardData = Array.isArray(leaderboardResponse.data.leaderboard)
+          ? leaderboardResponse.data.leaderboard
+          : [];
         setLeaderboard(leaderboardData);
       } catch (err) {
-        console.error('Error fetching leaderboard:', err.response?.data?.message || err.message);
+        console.error('Error fetching data:', err.response?.data?.message || err.message);
+      } finally {
+        setLoading(false); // Stop loading after data fetch
       }
     };
 
-    if (token && userId) {
-      fetchPortfolio();
-      fetchLeaderboard();
-    }
+    fetchData();
   }, [token, userId]);
+
+  if (loading) {
+    return <p>Loading...</p>; // Show a loading indicator while fetching data
+  }
 
   return (
     <div>
@@ -106,7 +102,7 @@ const Dashboard = () => {
         <div className="section">
           <h3>Portfolio</h3>
           {/* Validate portfolio before rendering */}
-          {Array.isArray(portfolio) && portfolio.length > 0 ? (
+          {portfolio.length > 0 ? (
             <ul>
               {portfolio.map((item, index) => (
                 <li key={index}>
@@ -122,7 +118,7 @@ const Dashboard = () => {
         <div className="section">
           <h3>Leaderboard</h3>
           {/* Validate leaderboard before rendering */}
-          {Array.isArray(leaderboard) && leaderboard.length > 0 ? (
+          {leaderboard.length > 0 ? (
             <ul>
               {leaderboard.map((user, index) => (
                 <li key={index}>

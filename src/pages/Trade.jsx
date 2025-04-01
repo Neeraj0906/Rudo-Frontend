@@ -7,9 +7,16 @@ const Trade = () => {
   const { token } = useContext(AuthContext);
   const [formData, setFormData] = useState({ stockSymbol: '', quantity: 0, type: 'BUY' });
   const [message, setMessage] = useState('');
+  const [loading, setLoading] = useState(false); // Add loading state
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!formData.stockSymbol || formData.quantity <= 0) {
+      setMessage('Please enter a valid stock symbol and quantity.');
+      return;
+    }
+
+    setLoading(true);
     try {
       let response;
       if (formData.type === 'BUY') {
@@ -20,6 +27,8 @@ const Trade = () => {
       setMessage(response.data.message);
     } catch (err) {
       setMessage(err.response?.data?.message || 'An error occurred');
+    } finally {
+      setLoading(false); // Stop loading after API call
     }
   };
 
@@ -85,11 +94,16 @@ const Trade = () => {
             value={formData.quantity}
             onChange={(e) => setFormData({ ...formData, quantity: parseInt(e.target.value) })}
           />
-          <select value={formData.type} onChange={(e) => setFormData({ ...formData, type: e.target.value })}>
+          <select
+            value={formData.type}
+            onChange={(e) => setFormData({ ...formData, type: e.target.value })}
+          >
             <option value="BUY">BUY</option>
             <option value="SELL">SELL</option>
           </select>
-          <button type="submit">Submit</button>
+          <button type="submit" disabled={loading}>
+            {loading ? 'Submitting...' : 'Submit'}
+          </button>
         </form>
         {message && <p>{message}</p>}
       </div>
